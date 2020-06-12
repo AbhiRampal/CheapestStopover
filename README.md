@@ -9,7 +9,7 @@ To run this app,
   
 Please not that when you navigate to API you will be asked for a username and password
   - username: user
-  - password: {printed on command line when you run mvn spring-boot:run}
+  - password: {printed on command line when you run mvn spring-boot:run. Look for: "Using generated security password:" log item}
   
 GET: /api/getCheapestRooms
 - Mandatory parameter: cityCode
