@@ -3,11 +3,11 @@
 Cheapest Room API
 
 To run this app, 
-  - checkout this project to your local machine
-  - navigate to the root directory of this repo on you localmachine via Terminal or CommandLine
+  - checkout this repo to your local machine
+  - navigate to the root directory of this repo on your local machine via Terminal or CommandLine
   - execute the command: mvn spring-boot:run
   
-Please not that when you navigate to API you will be asked for a username and password
+Please not that when you navigate to API in a webbrowser you will be asked for a username and password
   - username: user
   - password: {printed on command line when you run mvn spring-boot:run. Look for: "Using generated security password:" log item}
   
