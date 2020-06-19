@@ -6,6 +6,7 @@ public class RoomResponse {
     private String address;
     private String phoneNumber;
     private String roomRate;
+    private String roomRateCurreny;
 
 
     public String getHotelName() {
@@ -39,4 +40,14 @@ public class RoomResponse {
     public void setRoomRate(String roomRate) {
         this.roomRate = roomRate;
     }
+
+    public String getRoomRateCurreny() {
+        return roomRateCurreny;
+    }
+
+    public void setRoomRateCurreny(String roomRateCurreny) {
+        this.roomRateCurreny = roomRateCurreny;
+    }
+
+
 }

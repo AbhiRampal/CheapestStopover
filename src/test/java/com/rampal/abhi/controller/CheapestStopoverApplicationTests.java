@@ -1,7 +1,7 @@
 package com.rampal.abhi.controller;
 
 import com.rampal.abhi.model.HotelOffers;
-import com.rampal.abhi.model.Offer;
+import com.rampal.abhi.model.RoomResponse;
 import com.rampal.abhi.service.AuthService;
 import com.rampal.abhi.service.BookingsService;
 import org.junit.jupiter.api.Test;
@@ -10,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,10 +21,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value=BookingsController.class,  excludeAutoConfiguration = {SecurityAutoConfiguration.class})
+@WebMvcTest(value=BookingsController.class)
 @AutoConfigureMockMvc
 class CheapestStopoverApplicationTests {
 
@@ -41,7 +39,7 @@ class CheapestStopoverApplicationTests {
 	AuthService authService;
 
 	@Autowired
-	private MockMvc mvc;
+	private MockMvc mockMvc;
 
 	@Test
 	void contextLoads() {
@@ -50,31 +48,42 @@ class CheapestStopoverApplicationTests {
 
 	@Test
 	void returnsSomething() throws Exception {
-		mvc.perform(get("/api/getCheapestRooms")
+		mockMvc.perform(get("/api/getCheapestRooms")
 				.param("cityCode", "PAR")
 				.param("checkInDate", "2020-06-16")
-				.param("checkOutDate", "2020-06-17"))
+				.param("checkOutDate", "2020-06-17")
+				.contentType("application/json"))
 				.andExpect(status().isOk());
 	}
 
 	@Test
+	void testPost() throws Exception {
+		mockMvc.perform(post("/api/getCheapestRooms")
+				.param("cityCode", "PAR")
+				.param("checkInDate", "2020-06-16")
+				.param("checkOutDate", "2020-06-17")
+				.contentType("application/json"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	void testGetHotelOffersParis(){
-		List<HotelOffers> hotelOffersList = bookingsService.getHotelOffers("PAR",
+		List<RoomResponse> hotelOffersList = bookingsService.getHotelOffers("NYC",
 				"2020-06-16", "2020-06-17");
 		assertNotNull(hotelOffersList);
 		assertFalse(hotelOffersList.isEmpty());
-		for (HotelOffers offer: hotelOffersList){
-			assertEquals(offer.getHotel().getCityCode(), "PAR");
+		for (RoomResponse room: hotelOffersList){
+			assertEquals("USD", room.getRoomRateCurreny());
 		}
 	}
 
 	@Test
 	void testGetHotelOffersLondon(){
-		List<HotelOffers> hotelOffersList = bookingsService.getHotelOffers("LON",
+		List<RoomResponse> hotelOffersList = bookingsService.getHotelOffers("LON",
 				"2020-06-16", "2020-06-17");
 		assertNotNull(hotelOffersList);
-		for (HotelOffers offer: hotelOffersList){
-			assertEquals(offer.getHotel().getCityCode(), "LON");
+		for (RoomResponse room: hotelOffersList){
+			assertEquals("GBP", room.getRoomRateCurreny());
 		}
 	}
 
