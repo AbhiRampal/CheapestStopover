@@ -70,13 +70,7 @@ public class BookingsService {
                 output.add(roomResponses.get(i));
                 i++;
             } else {
-                RoomResponse room = new RoomResponse();
-                room.setHotelName(hotelOffer.getHotel().getName());
-                room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0));
-                room.setPhoneNumber(hotelOffer.getHotel().getContact().getPhone());
-                room.setRoomRate(offerPrice.toString());
-                room.setRoomRateCurreny(offerList.get(j).getPrice().getCurrency());
-                output.add(room);
+                output.add(createRoom(hotelOffer, offerPrice.toString()));
                 j++;
             }
         }
@@ -85,16 +79,19 @@ public class BookingsService {
             output.add(roomResponses.get(i++));
         }
         while(j < offerList.size() && output.size() < 3) {
-            RoomResponse room = new RoomResponse();
-            room.setHotelName(hotelOffer.getHotel().getName());
-            room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0));
-            room.setPhoneNumber(hotelOffer.getHotel().getContact().getPhone());
-            room.setRoomRate(offerList.get(j).getPrice().getTotal() != null ?
-                    offerList.get(j).getPrice().getTotal() : offerList.get(j).getPrice().getBase());
-            room.setRoomRateCurreny(offerList.get(j).getPrice().getCurrency());
-            output.add(room);
+            output.add(createRoom(hotelOffer, offerList.get(j).getPrice().getTotal() != null ?
+                    offerList.get(j).getPrice().getTotal() : offerList.get(j).getPrice().getBase()));
             j++;
         }
         return output;
+    }
+
+    private static RoomResponse createRoom(HotelOffers hotelOffer, String price){
+        RoomResponse room = new RoomResponse();
+        room.setHotelName(hotelOffer.getHotel().getName());
+        room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0)+" "+ hotelOffer.getHotel().getAddress().getCityName());
+        room.setPhoneNumber(hotelOffer.getHotel().getContact().getPhone());
+        room.setRoomRate(price);
+        return room;
     }
 }

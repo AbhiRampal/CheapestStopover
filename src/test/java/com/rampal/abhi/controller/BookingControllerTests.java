@@ -73,7 +73,7 @@ class BookingControllerTests {
 		assertNotNull(hotelOffersList);
 		assertFalse(hotelOffersList.isEmpty());
 		for (RoomResponse room: hotelOffersList){
-			assertEquals("USD", room.getRoomRateCurreny());
+			assertThat(room.getAddress().contains("PAR"));
 		}
 	}
 
@@ -83,7 +83,7 @@ class BookingControllerTests {
 				"2020-06-16", "2020-06-17");
 		assertNotNull(hotelOffersList);
 		for (RoomResponse room: hotelOffersList){
-			assertEquals("GBP", room.getRoomRateCurreny());
+			assertThat(room.getAddress().contains("LON"));
 		}
 	}
 
