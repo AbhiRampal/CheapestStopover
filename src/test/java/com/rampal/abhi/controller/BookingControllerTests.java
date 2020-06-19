@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(value=BookingsController.class)
 @AutoConfigureMockMvc
-class CheapestStopoverApplicationTests {
+class BookingControllerTests {
 
 	@Autowired
 	private BookingsController bookingsController;

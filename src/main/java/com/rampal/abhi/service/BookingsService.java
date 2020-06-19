@@ -52,58 +52,49 @@ public class BookingsService {
         HotelOfferList offers = response.getBody();
         List<RoomResponse> roomResponses = new ArrayList<>();
         for (HotelOffers hotelOffer: offers.getHotelOffers()){
-            merge(roomResponses, hotelOffer.getOffers(), hotelOffer);
+            roomResponses = mergeSortedLists(roomResponses, hotelOffer.getOffers(), hotelOffer);
         }
         return roomResponses;
     }
 
-    public static void merge(List<RoomResponse> roomResponses, List<Offer> offerList, HotelOffers hotelOffer) {
-        for (int index1 = 0, index2 = 0; index2 < offerList.size(); index1++) {
-            BigDecimal roomPrice = new BigDecimal(roomResponses.get(index1).getRoomRate());
+
+    public static List<RoomResponse> mergeSortedLists(List<RoomResponse> roomResponses, List<Offer> offerList, HotelOffers hotelOffer) {
+        List<RoomResponse> output = new ArrayList<>();
+        int i, j;
+        for (i = 0, j = 0; i < roomResponses.size() && j < offerList.size();) {
+            BigDecimal roomPrice = new BigDecimal(roomResponses.get(i).getRoomRate());
             //sometimes total price from json response is null. In that scenario using the base price.
-            BigDecimal offerPrice = new BigDecimal(offerList.get(index2).getPrice().getTotal() != null ?
-                    offerList.get(index2).getPrice().getTotal() : offerList.get(index2).getPrice().getBase());
-            if (index1 == roomResponses.size() || roomPrice.compareTo(offerPrice) > 0) {
+            BigDecimal offerPrice = new BigDecimal(offerList.get(j).getPrice().getTotal() != null ?
+                    offerList.get(j).getPrice().getTotal() : offerList.get(j).getPrice().getBase());
+            if (roomPrice.compareTo(offerPrice) < 0) {
+                output.add(roomResponses.get(i));
+                i++;
+            } else {
                 RoomResponse room = new RoomResponse();
                 room.setHotelName(hotelOffer.getHotel().getName());
                 room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0));
                 room.setPhoneNumber(hotelOffer.getHotel().getContact().getPhone());
-                room.setRoomRate( offerList.get(index2).getPrice().getTotal() != null? offerList.get(index2).getPrice().getTotal(): offerList.get(index2).getPrice().getBase());
-                room.setRoomRateCurreny(offerList.get(index2++).getPrice().getCurrency());
-                roomResponses.add(index1, room);
+                room.setRoomRate(offerPrice.toString());
+                room.setRoomRateCurreny(offerList.get(j).getPrice().getCurrency());
+                output.add(room);
+                j++;
             }
         }
 
-        if (roomResponses.size() > 3) {
-            roomResponses.subList(3, roomResponses.size()).clear();
+        while(i < roomResponses.size() && output.size() < 3) {
+            output.add(roomResponses.get(i++));
         }
-    }
-
-
-    public List<Offer> getHotelRooms(String hotelID){
-
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        LocalDate checkIn = currentTime.toLocalDate();
-        currentTime = currentTime.plusDays(1);
-        LocalDate checkOut = currentTime.toLocalDate();
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(findHotelRoomURL)
-                .queryParam("hotelId", hotelID)
-                .queryParam("checkInDate", checkIn)
-                .queryParam("checkOutDate", checkOut);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        OAuth2AccessToken oAuth2AccessToken = oAuth2RestTemplate.getAccessToken();
-        headers.setBearerAuth(oAuth2AccessToken.getValue());
-
-        HttpEntity<String> entity = new HttpEntity<>("body", headers);
-        System.out.println("URI: "+builder.toUriString());
-        ResponseEntity<Example> response = restTemplate.exchange(builder.toUriString(),
-                HttpMethod.GET, entity, Example.class);
-        List<Offer> offers = response.getBody().getData().getOffers();
-
-        return offers;
+        while(j < offerList.size() && output.size() < 3) {
+            RoomResponse room = new RoomResponse();
+            room.setHotelName(hotelOffer.getHotel().getName());
+            room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0));
+            room.setPhoneNumber(hotelOffer.getHotel().getContact().getPhone());
+            room.setRoomRate(offerList.get(j).getPrice().getTotal() != null ?
+                    offerList.get(j).getPrice().getTotal() : offerList.get(j).getPrice().getBase());
+            room.setRoomRateCurreny(offerList.get(j).getPrice().getCurrency());
+            output.add(room);
+            j++;
+        }
+        return output;
     }
 }
