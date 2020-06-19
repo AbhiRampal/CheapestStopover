@@ -59,7 +59,11 @@ public class BookingsService {
 
     public static void merge(List<RoomResponse> roomResponses, List<Offer> offerList, HotelOffers hotelOffer) {
         for (int index1 = 0, index2 = 0; index2 < offerList.size(); index1++) {
-            if (index1 == roomResponses.size() || new BigDecimal(roomResponses.get(index1).getRoomRate()).compareTo(new BigDecimal(offerList.get(index2).getPrice().getTotal() != null?offerList.get(index2).getPrice().getTotal():offerList.get(index2).getPrice().getBase())) > 0) {
+            BigDecimal roomPrice = new BigDecimal(roomResponses.get(index1).getRoomRate());
+            //sometimes total price from json response is null. In that scenario using the base price.
+            BigDecimal offerPrice = new BigDecimal(offerList.get(index2).getPrice().getTotal() != null ?
+                    offerList.get(index2).getPrice().getTotal() : offerList.get(index2).getPrice().getBase());
+            if (index1 == roomResponses.size() || roomPrice.compareTo(offerPrice) > 0) {
                 RoomResponse room = new RoomResponse();
                 room.setHotelName(hotelOffer.getHotel().getName());
                 room.setAddress(hotelOffer.getHotel().getAddress().getLines().get(0));
